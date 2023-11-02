@@ -1,7 +1,8 @@
 using UnityEngine.Video;
+using UnityEngine.Events;
 using WebSocketSharp;
-using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine;
 using TMPro;
 
 public class WS_Client : MonoBehaviour
@@ -12,15 +13,16 @@ public class WS_Client : MonoBehaviour
     public GameObject boton_conectar;
     public GameObject inputName;
     public GameObject inputIP;
-    public AudioSource audio1, audio2, audio3;
+    public bool conectado;
+
+    [HideInInspector] public UnityEvent SeConecto;
+    [HideInInspector] public UnityEvent<float> RecibeData;
 
 
-
-
-
-    void Start()
+    void Awake()
     {
-        Application.targetFrameRate = 30;
+        Application.targetFrameRate = 60;
+        RecibeData = new UnityEvent<float>();
     }
 
     void Update()
@@ -29,12 +31,14 @@ public class WS_Client : MonoBehaviour
         //Hay conexión con el servidor
         if (ws != null)
         {
-
             //Evento: Recibe mensaje de servidor (Evento de libreria)
             ws.OnMessage += (sender, mensaje) =>
             {
                 Debug.Log("Mensaje recibido: " + mensaje.Data);
-                
+                if (float.TryParse(mensaje.Data, out float numero))
+                {
+                    RecibeData.Invoke(numero);
+                }
             };
 
             //Evento: Hubo un error en la conexión (Evento de libreria)
@@ -48,10 +52,8 @@ public class WS_Client : MonoBehaviour
             {
 
             };
-
             HideUI();
-
-
+            if (!conectado) conectado = true;
         }
         //No hay conexión con el servidor
         else
@@ -59,8 +61,8 @@ public class WS_Client : MonoBehaviour
             ShowUI();
         }
 
-        if (Input.GetKeyDown("1")) ws.Send("play 1");
-        if (Input.GetKeyDown("2")) ws.Send("stop 1");
+        //if (Input.GetKeyDown("1")) ws.Send("play 1");
+        //if (Input.GetKeyDown("2")) ws.Send("stop 1");
 
 
     }
@@ -73,11 +75,11 @@ public class WS_Client : MonoBehaviour
         ws = new WebSocket(serverUrl);
         ws.OnMessage += (sender, e) =>
         {
-            //interferenciaValue = float.Parse(e.Data) / 100;
-            //Debug.Log("Mensaje recbido de: " + ((WebSocket)sender).Url + " Data: " + e.Data);
+            //Debug.Log("Mensaje recbido de: " +  + e.Data);
         };
         ws.Connect();
-        ws.Send(nombre + ("Unity"));
+        SeConecto.Invoke();
+        ws.Send(nombre + "(Unity)");
     }
 
     public void ReadTextInputIP(string t)
