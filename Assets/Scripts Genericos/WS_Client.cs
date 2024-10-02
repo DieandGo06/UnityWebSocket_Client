@@ -1,11 +1,14 @@
-using UnityEngine.Events;
-using WebSocketSharp;
-using UnityEngine.UI;
-using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.Events;
+using System.Threading;
+using WebSocketSharp;
+using UnityEngine;
+using TMPro;
 using System;
+using System.Threading.Tasks;
+
+
 
 public class WS_Client : MonoBehaviour
 {
@@ -21,15 +24,18 @@ public class WS_Client : MonoBehaviour
     public GameObject boton_conectar;
     public TextMeshProUGUI inputName;
     public TextMeshProUGUI inputIP;
+    public string MENSAJE;
 
 
     [Header("Consola")]
     [SerializeField] TextMeshProUGUI consoleText;
-    [SerializeField]  int maxLines;
+    [SerializeField] int maxLines;
     private List<string> messageList = new List<string>();
 
 
     [HideInInspector] public UnityEvent SeConecto;
+    [HideInInspector] public UnityEvent<string> OnMessage;
+
     [HideInInspector] public UnityEvent<int> RecibeInt;
     [HideInInspector] public UnityEvent<float> RecibeFloat;
 
@@ -37,7 +43,7 @@ public class WS_Client : MonoBehaviour
 
     void Awake()
     {
-        //Application.targetFrameRate = 60;
+        Application.targetFrameRate = 60;
         RecibeInt = new UnityEvent<int>();
         RecibeFloat = new UnityEvent<float>();
     }
@@ -48,54 +54,52 @@ public class WS_Client : MonoBehaviour
         if (PlayerPrefs.HasKey("Nombre"))
         {
             nombre = PlayerPrefs.GetString("Nombre");
-            ConsolePrintln("Nombre: " +  nombre);
+            ConsolePrintln("Nombre: " + nombre);
         }
         if (PlayerPrefs.HasKey("IP"))
         {
             serverUrl = PlayerPrefs.GetString("IP");
             ConsolePrintln("IP: " + serverUrl);
         }
-        
+        StartCoroutine (ConsolePrintAsync("AAAAAA"));
+        OnMessage.AddListener(ConsolePrintln);
     }
+
 
     void Update()
     {
-        ////Hay conexión con el servidor
-        //if (ws != null)
+        ////Si no hay conexion
+        if (ws != null)
+        {
+
+            //Evento: Recibe mensaje de servidor (Evento de libreria)
+            ws.OnMessage += (sender, mensaje) =>
+            {
+                Debug.Log("Mensaje recibido: " + mensaje.Data);
+                MENSAJE = mensaje.Data;
+                Debug.Log(MENSAJE);
+                StartCoroutine(ConsolePrintAsync("Hola"));
+                ConsolePrintln("MENSAJE");
+                //Debug.Log(mensaje.RawData);
+            };
+        }
+
+
+
+        //ws.OnError += (sender, mensaje) =>
         //{
-        //    //Evento: Recibe mensaje de servidor (Evento de libreria)
-        //    ws.OnMessage += (sender, mensaje) =>
-        //    {
-        //        Debug.Log("Mensaje recibido: " + mensaje.Data);
-        //        if (int.TryParse(mensaje.Data, out int numeroI))
-        //        {
-        //            RecibeFloat.Invoke(numeroI);
-        //        }
-        //        if (float.TryParse(mensaje.Data, out float numeroF))
-        //        {
-        //            RecibeFloat.Invoke(numeroF);
-        //        }
-        //    };
-
-        //    //Evento: Hubo un error en la conexión (Evento de libreria)
-        //    ws.OnError += (sender, mensaje) =>
-        //    {
-        //        Debug.LogWarning("Error del servidor");
-        //    };
-        //    //Evento: Se pierde la conexión (Evento de libreria)
-        //    ws.OnClose += (sender, e) =>
-        //    {
-        //        Debug.LogWarning("Se cerro la conexión");
-        //        ShowConnectButton();
-        //    };
-        //    if (!conectado) conectado = true;
-        //}
+        //    Debug.LogWarning("Error del servidor");
+        //};
+    }
 
 
-        //if (Input.GetKeyDown("1")) ws.Send("play 1");
-        ////if (Input.GetKeyDown("2")) ws.Send("stop 1");
 
-
+    IEnumerator ConsolePrintAsync(string data)
+    {
+        Debug.Log("FUNCIONA POR FAVOR 1");
+        yield return new WaitForSeconds(0.5f);
+        Debug.Log("FUNCIONA POR FAVOR 2");
+        ConsolePrintln(data);
     }
 
 
@@ -121,9 +125,29 @@ public class WS_Client : MonoBehaviour
             ConsolePrintln("Nombre: " + nombre);
             ConsolePrintln("IP: " + serverUrl);
             ConsolePrintln("Conexión exitosa");
+            ConsolePrintln("-------------------");
+
+            StartCoroutine(SendPingRoutine());
             SeConecto.Invoke(); // Invoca el evento personalizado
             ws.Send("Unity (" + nombre + ")" + ": Se conectó al servidor");
-            StartCoroutine(SendPingRoutine());
+        };
+
+        //Evento: Recibe mensaje de servidor (Evento de libreria)
+        ws.OnMessage += (sender, mensaje) =>
+        {
+            Debug.Log("Mensaje recibido: " + mensaje.Data);
+            MENSAJE = mensaje.Data;
+
+            byte[] mensajeBytes = mensaje.RawData; // tu byte array aquí
+            string mensajeTexto = System.Text.Encoding.UTF8.GetString(mensajeBytes);
+            ConsolePrintln(mensajeTexto);
+
+
+            //Debug.Log(MENSAJE);
+            //StartCoroutine(ConsolePrintAsync("Hola"));
+            //ConsolePrintln("MENSAJE");
+            //OnMessage.Invoke(MENSAJE);
+            //Debug.Log(mensaje.RawData);
         };
 
         // Evento: Error en la conexión
@@ -150,7 +174,7 @@ public class WS_Client : MonoBehaviour
 
     IEnumerator SendPingRoutine()
     {
-        while (ws != null && ws.IsAlive)
+        while (ws != null)
         {
             bool pingSuccess = ws.Ping();  // Enviar ping
             if (pingSuccess)
@@ -169,7 +193,6 @@ public class WS_Client : MonoBehaviour
         }
     }
     #endregion
-
 
 
     #region Interfaz
@@ -222,7 +245,7 @@ public class WS_Client : MonoBehaviour
     #endregion
 
 
-
+    #region Consola
     //================== Console ===================
     public void ConsolePrint(string message)
     {
@@ -239,16 +262,19 @@ public class WS_Client : MonoBehaviour
     {
         if (messageList.Count >= maxLines) messageList.RemoveAt(0);
         messageList.Add(message);
-        consoleText.text = "";
+        consoleText.text = ".";
 
-        DateTime now = DateTime.Now;  // Obtiene la fecha y hora actual del sistema
+        // Obtiene la fecha y hora actual del sistema
+        DateTime now = DateTime.Now;
         string currentHour = now.ToString("HH:mm:ss");
+        messageList[messageList.Count - 1] = currentHour + ":  " + messageList[messageList.Count - 1];
 
         foreach (string msg in messageList)
         {
             // Agrega cada mensaje en una nueva línea
-            consoleText.text += currentHour + ":  " + msg + "\n";
+            consoleText.text += msg + "\n";
         }
     }
     //===============================================
+    #endregion
 }
