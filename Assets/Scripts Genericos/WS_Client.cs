@@ -1,19 +1,17 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Events;
-using System.Threading;
-using WebSocketSharp;
+using NativeWebSocket;
 using UnityEngine;
 using TMPro;
 using System;
-using System.Threading.Tasks;
 
 
 
 public class WS_Client : MonoBehaviour
 {
-    //Documentacion de la libreria "WebSocketSharp": https://github.com/PingmanTools/websocket-sharp/
-    WebSocket ws;
+    //Documentacion de la libreria "Native WebSocket": https://github.com/endel/NativeWebSocket
+    WebSocket websocket;
 
     public string nombre;
     public string serverUrl;
@@ -61,50 +59,23 @@ public class WS_Client : MonoBehaviour
             serverUrl = PlayerPrefs.GetString("IP");
             ConsolePrintln("IP: " + serverUrl);
         }
-        StartCoroutine (ConsolePrintAsync("AAAAAA"));
-        OnMessage.AddListener(ConsolePrintln);
     }
 
 
     void Update()
     {
-        ////Si no hay conexion
-        if (ws != null)
+#if !UNITY_WEBGL || UNITY_EDITOR
+        if (websocket != null)
         {
-
-            //Evento: Recibe mensaje de servidor (Evento de libreria)
-            ws.OnMessage += (sender, mensaje) =>
-            {
-                Debug.Log("Mensaje recibido: " + mensaje.Data);
-                MENSAJE = mensaje.Data;
-                Debug.Log(MENSAJE);
-                StartCoroutine(ConsolePrintAsync("Hola"));
-                ConsolePrintln("MENSAJE");
-                //Debug.Log(mensaje.RawData);
-            };
+            websocket.DispatchMessageQueue();
         }
-
-
-
-        //ws.OnError += (sender, mensaje) =>
-        //{
-        //    Debug.LogWarning("Error del servidor");
-        //};
+#endif
     }
 
 
-
-    IEnumerator ConsolePrintAsync(string data)
-    {
-        Debug.Log("FUNCIONA POR FAVOR 1");
-        yield return new WaitForSeconds(0.5f);
-        Debug.Log("FUNCIONA POR FAVOR 2");
-        ConsolePrintln(data);
-    }
 
 
     #region Conexion con servidor
-    //Cuando se presiona el boton "Conectar" -----------------------------------------------------------------
     public void ConectToServer()
     {
         if (serverUrl == "ws://:3000" || serverUrl == "")
@@ -113,10 +84,10 @@ public class WS_Client : MonoBehaviour
             return;
         }
 
-        ws = new WebSocket(serverUrl);
+        websocket = new WebSocket(serverUrl);
 
         // Evento: Se abre la conexión con el servidor
-        ws.OnOpen += (sender, mensaje) =>
+        websocket.OnOpen += () =>
         {
             conectado = true;
             HideConnectButton();
@@ -127,72 +98,68 @@ public class WS_Client : MonoBehaviour
             ConsolePrintln("Conexión exitosa");
             ConsolePrintln("-------------------");
 
-            StartCoroutine(SendPingRoutine());
             SeConecto.Invoke(); // Invoca el evento personalizado
-            ws.Send("Unity (" + nombre + ")" + ": Se conectó al servidor");
+            Send("Unity (" + nombre + ")" + ": Se conectó al servidor");
+            StartCoroutine(SendPing());
         };
 
-        //Evento: Recibe mensaje de servidor (Evento de libreria)
-        ws.OnMessage += (sender, mensaje) =>
+        //Evento: Recibe mensaje de servidor (recibe bytes)
+        websocket.OnMessage += (bytes) =>
         {
-            Debug.Log("Mensaje recibido: " + mensaje.Data);
-            MENSAJE = mensaje.Data;
-
-            byte[] mensajeBytes = mensaje.RawData; // tu byte array aquí
-            string mensajeTexto = System.Text.Encoding.UTF8.GetString(mensajeBytes);
-            ConsolePrintln(mensajeTexto);
-
-
-            //Debug.Log(MENSAJE);
-            //StartCoroutine(ConsolePrintAsync("Hola"));
-            //ConsolePrintln("MENSAJE");
-            //OnMessage.Invoke(MENSAJE);
-            //Debug.Log(mensaje.RawData);
-        };
-
-        // Evento: Error en la conexión
-        ws.OnError += (sender, mensaje) =>
-        {
-            conectado = false;
-            ShowConnectButton();
-            ConsolePrintln("Error al conectar al servidor: " + mensaje.Message);
-            Debug.LogWarning("Error al conectar con el servidor: " + mensaje.Message);
+            string mensaje = System.Text.Encoding.UTF8.GetString(bytes);
+            Debug.Log("Mensaje recibido: " + mensaje);
+            ConsolePrintln(mensaje);
         };
 
         // Evento: Se cierra la conexión
-        ws.OnClose += (sender, mensaje) =>
+        websocket.OnClose += (mensaje) =>
         {
             conectado = false;
             ShowConnectButton();
             ConsolePrintln("Conexión cerrada");
             Debug.LogWarning("Conexión cerrada");
+            StopAllCoroutines();
         };
 
-        ws.Connect();
-    }
-    //============================================================================================================
-
-    IEnumerator SendPingRoutine()
-    {
-        while (ws != null)
+        // Evento: Error en la conexión
+        websocket.OnError += (mensaje) =>
         {
-            bool pingSuccess = ws.Ping();  // Enviar ping
-            if (pingSuccess)
-            {
-                Debug.Log("Ping exitoso");
-                ConsolePrintln("Ping, pong exitoso");
-            }
-            else
-            {
-                Debug.LogWarning("Ping fallido");
-                ConsolePrintln("Ping, pong FALLIDO");
-            }
+            conectado = false;
+            ShowConnectButton();
+            ConsolePrintln("Error al conectar al servidor: " + mensaje);
+            Debug.LogWarning("Error al conectar con el servidor: " + mensaje);
+        };
 
-            // Espera 5 segundos antes de enviar otro ping
-            yield return new WaitForSeconds(120f);
+
+        // waiting for messages
+        websocket.Connect();
+    }
+
+    async void Send(string _mensaje)
+    {
+        if (websocket.State == WebSocketState.Open)
+        {
+            // Sending plain text
+            await websocket.SendText(_mensaje);
+        }
+    }
+
+    private async void OnApplicationQuit()
+    {
+        await websocket.Close();
+    }
+
+    IEnumerator SendPing()
+    {
+        while (websocket != null && websocket.State == WebSocketState.Open)
+        {
+            Send("Ping");
+            yield return new WaitForSeconds(180f);
         }
     }
     #endregion
+
+
 
 
     #region Interfaz
@@ -216,8 +183,8 @@ public class WS_Client : MonoBehaviour
 
     public void DisconnectToServer()
     {
-        if (ws != null)
-            ws.Close();
+        if (websocket != null)
+            websocket.Close();
     }
 
     void HideConnectButton()
@@ -232,9 +199,9 @@ public class WS_Client : MonoBehaviour
 
     public void SendEmptyMessage()
     {
-        if (ws != null)
+        if (websocket != null)
         {
-            ws.Send("Mensaje de Prueba");
+            Send("Mensaje de Prueba");
         }
     }
 
@@ -243,6 +210,8 @@ public class WS_Client : MonoBehaviour
         Application.Quit();
     }
     #endregion
+
+
 
 
     #region Consola
