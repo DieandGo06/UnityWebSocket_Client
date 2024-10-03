@@ -12,6 +12,7 @@ public class WS_Client : MonoBehaviour
 {
     //Documentacion de la libreria "Native WebSocket": https://github.com/endel/NativeWebSocket
     WebSocket websocket;
+    public static WS_Client instance;
 
 
     [Header("Conexion")]
@@ -35,12 +36,15 @@ public class WS_Client : MonoBehaviour
 
 
     [HideInInspector] public UnityEvent SeConecto;
-    [HideInInspector] public UnityEvent<string> OnMessage;
+    [HideInInspector] public UnityEvent<string> RecibeMensaje;
 
 
 
     void Awake()
     {
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
+
         Application.runInBackground = true;
         Application.targetFrameRate = 60;
     }
@@ -65,7 +69,7 @@ public class WS_Client : MonoBehaviour
     {
         if (isConectionOpen())
         {
-            //Mantien la conexión con pings
+            //Mantine la conexión con pings
             SendPing();
         }
 
@@ -113,6 +117,7 @@ public class WS_Client : MonoBehaviour
         {
             string mensaje = System.Text.Encoding.UTF8.GetString(bytes);
             Debug.Log("Mensaje recibido: " + mensaje);
+            RecibeMensaje.Invoke(mensaje);
             ConsolePrintln(mensaje);
         };
 
@@ -175,7 +180,7 @@ public class WS_Client : MonoBehaviour
                 return true;
             }
         }
-        return false;  
+        return false;
     }
     #endregion
 
@@ -241,8 +246,15 @@ public class WS_Client : MonoBehaviour
         if (messageList.Count >= maxLines) messageList.RemoveAt(0);
         messageList.Add(message);
         consoleText.text = "";
+
+        // Obtiene la fecha y hora actual del sistema
+        DateTime now = DateTime.Now;
+        string currentHour = now.ToString("HH:mm:ss");
+        messageList[messageList.Count - 1] = currentHour + ":  " + messageList[messageList.Count - 1];
+
         foreach (string msg in messageList)
         {
+            // Agrega cada mensaje en una nueva línea
             consoleText.text += msg;
         }
     }
@@ -251,7 +263,7 @@ public class WS_Client : MonoBehaviour
     {
         if (messageList.Count >= maxLines) messageList.RemoveAt(0);
         messageList.Add(message);
-        consoleText.text = ".";
+        consoleText.text = "";
 
         // Obtiene la fecha y hora actual del sistema
         DateTime now = DateTime.Now;
@@ -263,6 +275,12 @@ public class WS_Client : MonoBehaviour
             // Agrega cada mensaje en una nueva línea
             consoleText.text += msg + "\n";
         }
+    }
+
+    public void ClearConsole()
+    {
+        messageList.Clear();
+        consoleText.text = "";
     }
     //===============================================
     #endregion
