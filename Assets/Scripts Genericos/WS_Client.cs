@@ -13,10 +13,13 @@ public class WS_Client : MonoBehaviour
     //Documentacion de la libreria "Native WebSocket": https://github.com/endel/NativeWebSocket
     WebSocket websocket;
 
+
+    [Header("Conexion")]
     public string nombre;
     public string serverUrl;
-
+    float tiempoComprobarConexion;
     bool conectado;
+
 
     [Header("Interfaz")]
     public GameObject boton_conectar;
@@ -34,16 +37,12 @@ public class WS_Client : MonoBehaviour
     [HideInInspector] public UnityEvent SeConecto;
     [HideInInspector] public UnityEvent<string> OnMessage;
 
-    [HideInInspector] public UnityEvent<int> RecibeInt;
-    [HideInInspector] public UnityEvent<float> RecibeFloat;
-
 
 
     void Awake()
     {
+        Application.runInBackground = true;
         Application.targetFrameRate = 60;
-        RecibeInt = new UnityEvent<int>();
-        RecibeFloat = new UnityEvent<float>();
     }
 
     private void Start()
@@ -64,6 +63,12 @@ public class WS_Client : MonoBehaviour
 
     void Update()
     {
+        if (isConectionOpen())
+        {
+            //Mantien la conexión con pings
+            SendPing();
+        }
+
 #if !UNITY_WEBGL || UNITY_EDITOR
         if (websocket != null)
         {
@@ -100,7 +105,7 @@ public class WS_Client : MonoBehaviour
 
             SeConecto.Invoke(); // Invoca el evento personalizado
             Send("Unity (" + nombre + ")" + ": Se conectó al servidor");
-            StartCoroutine(SendPing());
+            //StartCoroutine(SendPing());
         };
 
         //Evento: Recibe mensaje de servidor (recibe bytes)
@@ -137,7 +142,7 @@ public class WS_Client : MonoBehaviour
 
     async void Send(string _mensaje)
     {
-        if (websocket.State == WebSocketState.Open)
+        if (isConectionOpen())
         {
             // Sending plain text
             await websocket.SendText(_mensaje);
@@ -149,13 +154,28 @@ public class WS_Client : MonoBehaviour
         await websocket.Close();
     }
 
-    IEnumerator SendPing()
+    //Mantiene la conexión activa
+    void SendPing()
     {
-        while (websocket != null && websocket.State == WebSocketState.Open)
+        tiempoComprobarConexion += Time.deltaTime;
+        if (tiempoComprobarConexion >= 300)
         {
             Send("Ping");
-            yield return new WaitForSeconds(180f);
+            tiempoComprobarConexion = 0;
         }
+
+    }
+
+    bool isConectionOpen()
+    {
+        if (websocket != null)
+        {
+            if (websocket.State == WebSocketState.Open)
+            {
+                return true;
+            }
+        }
+        return false;  
     }
     #endregion
 

@@ -33,7 +33,7 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
-        webSocket.RecibeInt.AddListener(ActualizarAudio);
+        //webSocket.RecibeInt.AddListener(ActualizarAudio);
         //webSocket.SeConecto.AddListener(ReproducirAudiosInciales);
 
     }
