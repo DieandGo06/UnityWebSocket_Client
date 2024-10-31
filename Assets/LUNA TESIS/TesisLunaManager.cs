@@ -45,7 +45,7 @@ public class TesisLunaManager : MonoBehaviour
                 IniciarInteraccion(mensajeDividido[1]);
                 break;
             }
-            if (mensajeDividido[i] == "IniciarInteraccion")
+            if (mensajeDividido[i] == "IniciarMimitos")
             {
                 Debug.Log("mimitos");
                 IniciarMimitos(mensajeDividido[1]);
