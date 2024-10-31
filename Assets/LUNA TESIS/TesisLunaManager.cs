@@ -6,17 +6,19 @@ using UnityEngine.Rendering;
 public class TesisLunaManager : MonoBehaviour
 {
     [Header("Gato Feliz")]
-    [SerializeField] AudioSource audioSourceFeliz;
-    [SerializeField] List<AudioClip> clipsFelices;
-    int indexClipsFelices = 0;
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] List<AudioClip> clipsInteraccionFelices;
+    [SerializeField] List<AudioClip> clipsMimitosFelices;
+    
 
     [Header("Gato Tiste")]
-    [SerializeField] AudioSource audioSourceTriste;
-    [SerializeField] List<AudioClip> clipsTristes;
-    int indexClipsTristes = 0;
+    [SerializeField] List<AudioClip> clipsInteraccionTristes;
+    [SerializeField] List<AudioClip> clipsMimitosTristes;
 
 
     string separador;
+    int indexClipsInteraccion = 0;
+    int indexClipsMimitos = 0;
 
 
 
@@ -37,10 +39,16 @@ public class TesisLunaManager : MonoBehaviour
         //Aquí van la decalaracion de todas las funciones
         for (int i = 0; i < mensajeDividido.Length; i++)
         {
-            Debug.Log("interaccion");
             if (mensajeDividido[i] == "IniciarInteraccion")
             {
+                Debug.Log("interaccion");
                 IniciarInteraccion(mensajeDividido[1]);
+                break;
+            }
+            if (mensajeDividido[i] == "IniciarInteraccion")
+            {
+                Debug.Log("mimitos");
+                IniciarMimitos(mensajeDividido[1]);
                 break;
             }
         }
@@ -53,22 +61,60 @@ public class TesisLunaManager : MonoBehaviour
     {
         if (_escultura == "feliz")
         {
-            if (clipsFelices.Count > 0)
+            if (clipsInteraccionFelices.Count > 0)
             {
-                audioSourceFeliz.PlayOneShot(clipsFelices[indexClipsFelices]);
-                indexClipsFelices++;
-                if (indexClipsFelices >= clipsFelices.Count) indexClipsFelices = 0;
+                audioSource.PlayOneShot(clipsInteraccionFelices[indexClipsInteraccion]);
+                indexClipsInteraccion++;
+                if (indexClipsInteraccion >= clipsInteraccionFelices.Count) indexClipsInteraccion = 0;
                 
             }
             else Debug.LogWarning("No hay referenciados clips de audio");
         }
         else if (_escultura == "triste")
         {
-            if (clipsTristes.Count > 0)
+            if (clipsInteraccionTristes.Count > 0)
             {
-                audioSourceTriste.PlayOneShot(clipsTristes[indexClipsTristes]);
-                indexClipsTristes++;
-                if (indexClipsTristes >= clipsTristes.Count) indexClipsTristes = 0;
+                audioSource.PlayOneShot(clipsInteraccionTristes[indexClipsInteraccion]);
+                indexClipsInteraccion++;
+                if (indexClipsInteraccion >= clipsInteraccionTristes.Count) indexClipsInteraccion = 0;
+            }
+            else Debug.LogWarning("No hay referenciados clips de audio");
+        }
+        else
+        {
+            string aviso = "Uno de los ESP32 tiene mal la variable -escultura-. Solo puede ser -feliz- o -triste-";
+            Debug.LogWarning(aviso);
+            WS_Client.instance.ConsolePrintln(aviso);
+        }
+    }
+
+    void IniciarMimitos(string _escultura)
+    {
+        if (_escultura == "feliz")
+        {
+            if (clipsMimitosFelices.Count > 0)
+            {
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.clip = clipsMimitosFelices[indexClipsMimitos];
+                    audioSource.Play();
+                    indexClipsMimitos++;
+                    if (indexClipsMimitos >= clipsMimitosFelices.Count) indexClipsMimitos = 0;
+                }
+            }
+            else Debug.LogWarning("No hay referenciados clips de audio");
+        }
+        else if (_escultura == "triste")
+        {
+            if (clipsMimitosFelices.Count > 0)
+            {
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.clip = clipsMimitosTristes[indexClipsMimitos];
+                    audioSource.Play();
+                    indexClipsMimitos++;
+                    if (indexClipsMimitos >= clipsMimitosTristes.Count) indexClipsMimitos = 0;
+                }
             }
             else Debug.LogWarning("No hay referenciados clips de audio");
         }
