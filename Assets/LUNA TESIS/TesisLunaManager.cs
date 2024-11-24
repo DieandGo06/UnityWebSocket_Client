@@ -412,10 +412,11 @@ public class TesisLunaManager : MonoBehaviour
             //Enum Fases
             faseActual.ToString()+ separador,
         };
+        string mensaje = string.Join("", cadena);
 
         if (WS_Client.instance != null)
         {
-            WS_Client.instance.Send("Unity(" + WS_Client.instance.nombre + ")" + separador + "ActualizarEstados" + separador + cadena);
+            WS_Client.instance.Send("Unity(" + WS_Client.instance.nombre + ")" + separador + "ActualizarEstados" + separador + mensaje);
         }
     }
 
