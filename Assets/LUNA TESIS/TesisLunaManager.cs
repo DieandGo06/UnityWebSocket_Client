@@ -262,9 +262,9 @@ public class TesisLunaManager : MonoBehaviour
         //------------------------------------------------------------------------
 
         //Cuando se acaricia la escultura CORRECTA
-        if (esculturaInteractuable == estaEscultura)
+        if (esculturaInteractuable == estaEscultura )
         {
-            if (_escultura == "feliz")
+            if (_escultura == "feliz" && estaEscultura == Esculturas.feliz)
             {
                 if (!audioSource.isPlaying && cancionParte <= clipsMimitosFelices.Count - 1)
                 {
@@ -274,7 +274,7 @@ public class TesisLunaManager : MonoBehaviour
                     Debug.Log("Esta sonando feliz");
                 }
             }
-            else if (_escultura == "triste")
+            else if (_escultura == "triste" && estaEscultura == Esculturas.triste)
             {
                 if (!audioSource.isPlaying && cancionParte <= clipsMimitosTristes.Count - 1)
                 {
@@ -379,11 +379,11 @@ public class TesisLunaManager : MonoBehaviour
         //NO DEBERIA SER UN STOP, DEBERIA SER UN CROSS FADE
         audioSource.Stop();
 
-        if (_escultura == "feliz")
+        if (_escultura == "feliz" && estaEscultura == Esculturas.feliz)
         {
             audioSource.clip = finalCorrectoFeliz;
         }
-        else if (_escultura == "triste")
+        else if (_escultura == "triste" && estaEscultura == Esculturas.triste)
         {
             audioSource.clip = finalCorrectoTriste;
         }
