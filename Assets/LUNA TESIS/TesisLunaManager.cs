@@ -271,6 +271,7 @@ public class TesisLunaManager : MonoBehaviour
                     StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.triste));
                     audioSource.clip = clipsMimitosFelices[cancionParte];
                     audioSource.Play();
+                    Debug.Log("Esta sonando feliz");
                 }
             }
             else if (_escultura == "triste")
@@ -281,6 +282,7 @@ public class TesisLunaManager : MonoBehaviour
                     audioSource.clip = clipsMimitosTristes[cancionParte];
                     audioSource.Play();
                     cancionParte++;
+                    Debug.Log("Esta sonando triste");
 
                     if (cancionParte > clipsMimitosTristes.Count - 1)
                     {
