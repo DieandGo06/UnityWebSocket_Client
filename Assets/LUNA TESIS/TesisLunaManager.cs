@@ -284,7 +284,7 @@ public class TesisLunaManager : MonoBehaviour
                     cancionParte++;
                     Debug.Log("Esta sonando triste");
 
-                    if (cancionParte > clipsMimitosTristes.Count - 1)
+                    if (cancionParte == clipsMimitosTristes.Count - 1)
                     {
                         StartCoroutine(CambiarFase(duracionAudios - 1, Fases.final));
                         StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 0.2f, Esculturas.ambas));
