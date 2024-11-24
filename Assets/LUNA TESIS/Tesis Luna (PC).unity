@@ -2746,7 +2746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40a375d66f343ec4faeb97d41ac2295e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  estaEscultura: 1
+  estaEscultura: 0
   faseActual: 0
   esculturaInteractuable: 2
   audioSource: {fileID: 1589745536}

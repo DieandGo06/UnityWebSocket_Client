@@ -47,6 +47,7 @@ public class TesisLunaManager : MonoBehaviour
     string separador;
     float tiempoToReset = 60;
     float tiempoToResetFinal = 16;
+    float duracionAudios = 8;
 
 
 
@@ -115,8 +116,18 @@ public class TesisLunaManager : MonoBehaviour
                 EjecutarFinal(mensajeDividido[1]);
                 break;
             }
+
+            //En este condicional se recibe el string completo con todos los nuevos datos (Lo envian los Unity)
+            if (mensajeDividido[i] == "ActualizarEstados")
+            {
+                Debug.Log("ActualizarEstados");
+                RecibirNuevoEstados(_mensaje);
+                break;
+            }
         }
     }
+
+
 
 
 
@@ -167,17 +178,22 @@ public class TesisLunaManager : MonoBehaviour
         {
             //Falta que el otro se queje cuando acarician a uno ---> IMPORTANTE
             PrimerosMimitos(_escultura);
+            //Los estados cambian poco antes de terminar el audio
+            StartCoroutine(EnviarNuevosEstados(duracionAudios));
             return;
         }
 
         if (faseActual == Fases.desarrollo)
         {
             MimitosDesarrollo(_escultura);
+            //Los estados cambian poco antes de terminar el audio
+            StartCoroutine(EnviarNuevosEstados(duracionAudios));
         }
 
         if (faseActual == Fases.final)
         {
             MimitosFinal(_escultura);
+            StartCoroutine(EnviarNuevosEstados(0.2f));
         }
     }
 
@@ -198,7 +214,7 @@ public class TesisLunaManager : MonoBehaviour
             {
                 if (!audioSource.isPlaying)
                 {
-                    StartCoroutine(CambiarPuedeInteractuar(8, Esculturas.triste));
+                    StartCoroutine(CambiarPuedeInteractuar(duracionAudios-1, Esculturas.triste));
                     audioSource.clip = clipsMimitosFelices[0];
                     audioSource.Play();
                 }
@@ -210,8 +226,8 @@ public class TesisLunaManager : MonoBehaviour
             {
                 if (!audioSource.isPlaying)
                 {
-                    StartCoroutine(CambiarPuedeInteractuar(8, Esculturas.feliz));
-                    StartCoroutine(CambiarFase(8, Fases.desarrollo));
+                    StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.feliz));
+                    StartCoroutine(CambiarFase(duracionAudios - 1, Fases.desarrollo));
                     audioSource.clip = clipsMimitosTristes[0];
                     audioSource.Play();
                     cancionParte = 1;
@@ -240,7 +256,7 @@ public class TesisLunaManager : MonoBehaviour
         //Cuando NO se acaricia a la escultura interactuable
         if (esculturaInteractuable != estaEscultura)
         {
-            //StartCoroutine(CambiarPuedeInteractuar(8, true));
+            //StartCoroutine(CambiarPuedeInteractuar(duracionAudios-1, true));
             return;
         }
         //------------------------------------------------------------------------
@@ -248,12 +264,11 @@ public class TesisLunaManager : MonoBehaviour
         //Cuando se acaricia la escultura CORRECTA
         if (esculturaInteractuable == estaEscultura)
         {
-
             if (_escultura == "feliz")
             {
                 if (!audioSource.isPlaying && cancionParte <= clipsMimitosFelices.Count - 1)
                 {
-                    StartCoroutine(CambiarPuedeInteractuar(8, Esculturas.triste));
+                    StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.triste));
                     audioSource.clip = clipsMimitosFelices[cancionParte];
                     audioSource.Play();
                 }
@@ -262,15 +277,15 @@ public class TesisLunaManager : MonoBehaviour
             {
                 if (!audioSource.isPlaying && cancionParte <= clipsMimitosTristes.Count - 1)
                 {
-                    StartCoroutine(CambiarPuedeInteractuar(8, Esculturas.feliz));
+                    StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.feliz));
                     audioSource.clip = clipsMimitosTristes[cancionParte];
                     audioSource.Play();
                     cancionParte++;
 
                     if (cancionParte > clipsMimitosTristes.Count - 1)
                     {
-                        StartCoroutine(CambiarFase(8, Fases.final));
-                        StartCoroutine(CambiarPuedeInteractuar(8.2f, Esculturas.ambas));
+                        StartCoroutine(CambiarFase(duracionAudios - 1, Fases.final));
+                        StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 0.2f, Esculturas.ambas));
                     }
                 }
             }
@@ -378,6 +393,52 @@ public class TesisLunaManager : MonoBehaviour
 
 
 
+    IEnumerator EnviarNuevosEstados(float timer)
+    {
+        yield return new WaitForSeconds(timer);
+
+        string[] cadena = {
+            //int
+            cancionParte.ToString() + separador,
+            //float
+            tiempoTrasCantar.ToString() + separador,
+            //bool
+            inicioDialogo.ToString() + separador,
+            iniciaronAudiosFinales.ToString() + separador,
+            tristeListoParaFinal.ToString() + separador,
+            felizListoParaFinal.ToString() + separador,
+            //Enum Esculturas
+            esculturaInteractuable.ToString() + separador,
+            //Enum Fases
+            faseActual.ToString()+ separador,
+        };
+
+        if (WS_Client.instance != null)
+        {
+            WS_Client.instance.Send("Unity(" + WS_Client.instance.nombre + ")" + separador + "ActualizarEstados" + separador + cadena);
+        }
+    }
+
+    void RecibirNuevoEstados(string nuevosEstados)
+    {
+        //El [0] es solo el nombre de quien envia, y [1] es el tipo de accion
+        string[] mensajeDividido = nuevosEstados.Split(separador);
+        //int
+        cancionParte = int.Parse(mensajeDividido[2]);
+        //float
+        tiempoTrasCantar = float.Parse(mensajeDividido[3]);
+        //bool
+        inicioDialogo = bool.Parse(mensajeDividido[4]);
+        iniciaronAudiosFinales = bool.Parse(mensajeDividido[5]);
+        tristeListoParaFinal = bool.Parse(mensajeDividido[6]);
+        felizListoParaFinal = bool.Parse(mensajeDividido[7]);
+        //Enum Esculturas
+        esculturaInteractuable = (Esculturas)System.Enum.Parse(typeof(Esculturas), mensajeDividido[8]);
+        //Enum Fases
+        faseActual = (Fases)System.Enum.Parse(typeof(Fases), mensajeDividido[9]);
+
+    }
+
     void ReiniciarExperiencia()
     {
         tiempoTrasCantar = 0;
@@ -393,6 +454,7 @@ public class TesisLunaManager : MonoBehaviour
         iniciaronAudiosFinales = false;
         felizListoParaFinal = false;
         tristeListoParaFinal = false;
+        StartCoroutine(EnviarNuevosEstados(0.2f));
     }
 
     IEnumerator ReiniciarExperienciaTrasFinal()
@@ -426,7 +488,7 @@ public class TesisLunaManager : MonoBehaviour
     {
         if (WS_Client.instance != null)
         {
-            WS_Client.instance.Send("Unity(" + WS_Client.instance.nombre + ")" + ">>" + nombreEscultura + ">>" + accion);
+            WS_Client.instance.Send("Unity(" + WS_Client.instance.nombre + ")" + separador + nombreEscultura + separador + accion);
         }
     }
 }
