@@ -145,7 +145,7 @@ public class WS_Client : MonoBehaviour
         websocket.Connect();
     }
 
-    async void Send(string _mensaje)
+    public async void Send(string _mensaje)
     {
         if (isConectionOpen())
         {

@@ -2746,23 +2746,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40a375d66f343ec4faeb97d41ac2295e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inicioDialogo: 0
-  puedeInteractuar: 0
+  estaEscultura: 1
+  faseActual: 0
+  esculturaInteractuable: 2
   audioSource: {fileID: 1589745536}
+  inicioDialogo: 0
+  iniciaronAudiosFinales: 0
+  felizListoParaFinal: 0
+  tristeListoParaFinal: 0
   clipsInteraccionFelices:
   - {fileID: 8300000, guid: ea5fb679d96fa3344ba3bdac08f62356, type: 3}
   clipsMimitosFelices:
   - {fileID: 8300000, guid: f8b4d41df124a394f9ad3ffe2adc432f, type: 3}
   - {fileID: 8300000, guid: f4f527bdf09f19844a1296243c7f6220, type: 3}
   - {fileID: 8300000, guid: 0a5cc9cefb82644448c7b3df6015d987, type: 3}
+  finalDistorsionadoFeliz: {fileID: 8300000, guid: 778d7db7cf7353046a44fdecf95fc74a, type: 3}
+  finalCorrectoFeliz: {fileID: 8300000, guid: a7a748818b7638c4c9b4e40a2ae77365, type: 3}
   clipsInteraccionTristes:
   - {fileID: 8300000, guid: ea5fb679d96fa3344ba3bdac08f62356, type: 3}
   clipsMimitosTristes:
   - {fileID: 8300000, guid: ec13501b5e6e9274aa72a984050bfdbe, type: 3}
   - {fileID: 8300000, guid: 00d23b3a1255a3b48855e25cf59fd7be, type: 3}
   - {fileID: 8300000, guid: 4ad1998455e2d9940ac90eb0eed4e29a, type: 3}
+  finalDistorsionadoTriste: {fileID: 8300000, guid: 778d7db7cf7353046a44fdecf95fc74a, type: 3}
+  finalCorrectoTriste: {fileID: 8300000, guid: a7a748818b7638c4c9b4e40a2ae77365, type: 3}
   indexClipsInteraccion: 0
-  indexClipsMimitos: 0
+  cancionParte: 0
   tiempoTrasCantar: 0
 --- !u!82 &1589745536
 AudioSource:
