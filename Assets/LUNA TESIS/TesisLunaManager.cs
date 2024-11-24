@@ -178,22 +178,17 @@ public class TesisLunaManager : MonoBehaviour
         {
             //Falta que el otro se queje cuando acarician a uno ---> IMPORTANTE
             PrimerosMimitos(_escultura);
-            //Los estados cambian poco antes de terminar el audio
-            StartCoroutine(EnviarNuevosEstados(duracionAudios));
             return;
         }
 
         if (faseActual == Fases.desarrollo)
         {
             MimitosDesarrollo(_escultura);
-            //Los estados cambian poco antes de terminar el audio
-            StartCoroutine(EnviarNuevosEstados(duracionAudios));
         }
 
         if (faseActual == Fases.final)
         {
             MimitosFinal(_escultura);
-            StartCoroutine(EnviarNuevosEstados(0.2f));
         }
     }
 
@@ -217,6 +212,8 @@ public class TesisLunaManager : MonoBehaviour
                     StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.triste));
                     audioSource.clip = clipsMimitosFelices[0];
                     audioSource.Play();
+                    //Los estados cambian poco antes de terminar el audio
+                    StartCoroutine(EnviarNuevosEstados(duracionAudios+0.2f));
                 }
             }
         }
@@ -231,6 +228,8 @@ public class TesisLunaManager : MonoBehaviour
                     audioSource.clip = clipsMimitosTristes[0];
                     audioSource.Play();
                     cancionParte = 1;
+                    //Los estados cambian poco antes de terminar el audio
+                    StartCoroutine(EnviarNuevosEstados(duracionAudios + 0.2f));
                 }
             }
         }
@@ -272,6 +271,8 @@ public class TesisLunaManager : MonoBehaviour
                     audioSource.clip = clipsMimitosFelices[cancionParte];
                     audioSource.Play();
                     Debug.Log("Esta sonando feliz");
+                    //Los estados cambian poco antes de terminar el audio
+                    StartCoroutine(EnviarNuevosEstados(duracionAudios + 0.2f));
                 }
             }
             else if (_escultura == "triste" && estaEscultura == Esculturas.triste)
@@ -289,6 +290,8 @@ public class TesisLunaManager : MonoBehaviour
                         StartCoroutine(CambiarFase(duracionAudios - 1, Fases.final));
                         StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 0.2f, Esculturas.ambas));
                     }
+                    //Los estados cambian poco antes de terminar el audio
+                    StartCoroutine(EnviarNuevosEstados(duracionAudios + 0.2f));
                 }
             }
             else
@@ -324,6 +327,8 @@ public class TesisLunaManager : MonoBehaviour
                 audioSource.clip = finalDistorsionadoFeliz;
                 audioSource.Play();
             }
+            //Los estados cambian poco antes de terminar el audio
+            StartCoroutine(EnviarNuevosEstados(0.2f));
             //iniciaronAudiosFinales SE REINICIA EN EL UPDATE     
             return;
             //}
@@ -341,7 +346,10 @@ public class TesisLunaManager : MonoBehaviour
                 audioSource.clip = finalDistorsionadoTriste;
                 audioSource.Play();
             }
+            //Los estados cambian poco antes de terminar el audio
+            StartCoroutine(EnviarNuevosEstados(0.2f));
             //iniciaronAudiosFinales SE REINICIA EN EL UPDATE
+
             return;
             //}
         }
@@ -363,6 +371,8 @@ public class TesisLunaManager : MonoBehaviour
         if (iniciaronAudiosFinales && felizListoParaFinal && tristeListoParaFinal)
         {
             EnviarMensajeComoESP32(_escultura, "EjecutarFinal");
+            //Los estados cambian poco antes de terminar el audio
+            StartCoroutine(EnviarNuevosEstados(0.2f));
         }
     }
 
