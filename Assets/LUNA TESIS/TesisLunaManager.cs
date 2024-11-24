@@ -208,7 +208,7 @@ public class TesisLunaManager : MonoBehaviour
             return;
         }
 
-        if (_escultura == "feliz")
+        if (_escultura == "feliz" && estaEscultura == Esculturas.feliz)
         {
             if (esculturaInteractuable == Esculturas.feliz || esculturaInteractuable == Esculturas.ambas)
             {
@@ -220,7 +220,7 @@ public class TesisLunaManager : MonoBehaviour
                 }
             }
         }
-        else if (_escultura == "triste")
+        else if (_escultura == "triste" && estaEscultura == Esculturas.triste)
         {
             if (esculturaInteractuable == Esculturas.triste || esculturaInteractuable == Esculturas.ambas)
             {
@@ -309,7 +309,7 @@ public class TesisLunaManager : MonoBehaviour
             return;
         }
 
-        if (_escultura == "feliz")
+        if (_escultura == "feliz" && estaEscultura == Esculturas.feliz)
         {
             //if (!iniciaronAudiosFinales)
             //{
@@ -326,7 +326,7 @@ public class TesisLunaManager : MonoBehaviour
             return;
             //}
         }
-        else if (_escultura == "triste")
+        else if (_escultura == "triste" && estaEscultura == Esculturas.triste)
         {
             //if (!iniciaronAudiosFinales)
             //{
