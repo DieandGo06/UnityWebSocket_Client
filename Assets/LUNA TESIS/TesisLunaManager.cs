@@ -214,7 +214,7 @@ public class TesisLunaManager : MonoBehaviour
             {
                 if (!audioSource.isPlaying)
                 {
-                    StartCoroutine(CambiarPuedeInteractuar(duracionAudios-1, Esculturas.triste));
+                    StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.triste));
                     audioSource.clip = clipsMimitosFelices[0];
                     audioSource.Play();
                 }
@@ -262,7 +262,7 @@ public class TesisLunaManager : MonoBehaviour
         //------------------------------------------------------------------------
 
         //Cuando se acaricia la escultura CORRECTA
-        if (esculturaInteractuable == estaEscultura )
+        if (esculturaInteractuable == estaEscultura)
         {
             if (_escultura == "feliz" && estaEscultura == Esculturas.feliz)
             {
@@ -399,22 +399,33 @@ public class TesisLunaManager : MonoBehaviour
     {
         yield return new WaitForSeconds(timer);
 
+        // Esto es una guarrada que me dijo chatGPT porque la corrutina estaba tomando los valores recien se ejecutaba y no despues del WaitForSeconds
+        int _cancionParte = cancionParte;
+        float _tiempoTrasCantar = tiempoTrasCantar;
+        bool _inicioDialogo = inicioDialogo;
+        bool _iniciaronAudiosFinales = iniciaronAudiosFinales;
+        bool _tristeListoParaFinal = tristeListoParaFinal;
+        bool _felizListoParaFinal = felizListoParaFinal;
+        Esculturas _esculturaInteractuable = esculturaInteractuable;
+        Fases _faseActual = faseActual;
+
         string[] cadena = {
             //int
-            cancionParte.ToString() + separador,
+            _cancionParte.ToString() + separador,
             //float
-            tiempoTrasCantar.ToString() + separador,
+            _tiempoTrasCantar.ToString() + separador,
             //bool
-            inicioDialogo.ToString() + separador,
-            iniciaronAudiosFinales.ToString() + separador,
-            tristeListoParaFinal.ToString() + separador,
-            felizListoParaFinal.ToString() + separador,
+            _inicioDialogo.ToString() + separador,
+            _iniciaronAudiosFinales.ToString() + separador,
+            _tristeListoParaFinal.ToString() + separador,
+            _felizListoParaFinal.ToString() + separador,
             //Enum Esculturas
-            esculturaInteractuable.ToString() + separador,
+            _esculturaInteractuable.ToString() + separador,
             //Enum Fases
-            faseActual.ToString()+ separador,
+            _faseActual.ToString()+ separador,
         };
         string mensaje = string.Join("", cadena);
+
 
         if (WS_Client.instance != null)
         {
