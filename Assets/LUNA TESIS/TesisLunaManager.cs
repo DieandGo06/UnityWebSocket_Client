@@ -5,20 +5,34 @@ using UnityEngine.Rendering;
 
 public class TesisLunaManager : MonoBehaviour
 {
-    [Header("Gato Feliz")]
+    public enum Esculturas { feliz, triste, ambas };
+
+    [Header("Particular")]
+    [SerializeField] Esculturas estaEscultura;
+
+    [Header("General")]
+    [SerializeField] bool inicioDialogo;
+    [SerializeField] Esculturas esculturaInteractuable;
     [SerializeField] AudioSource audioSource;
+
+    [Header("Gato Feliz")]
     [SerializeField] List<AudioClip> clipsInteraccionFelices;
     [SerializeField] List<AudioClip> clipsMimitosFelices;
-    
 
     [Header("Gato Tiste")]
     [SerializeField] List<AudioClip> clipsInteraccionTristes;
     [SerializeField] List<AudioClip> clipsMimitosTristes;
 
+    [Header("Debug")]
+    [SerializeField] int indexClipsInteraccion = 0;
+    [SerializeField] int indexClipsMimitos = 0;
+    [SerializeField] float tiempoTrasCantar = 0;
+
+
 
     string separador;
-    int indexClipsInteraccion = 0;
-    int indexClipsMimitos = 0;
+    float tiempoToReset = 30;
+
 
 
 
@@ -27,6 +41,18 @@ public class TesisLunaManager : MonoBehaviour
     {
         separador = ">>";
         WS_Client.instance.RecibeMensaje.AddListener(RecibeMensaje);
+    }
+
+    private void Update()
+    {
+        if (inicioDialogo)
+        {
+            tiempoTrasCantar += Time.deltaTime;
+            if (tiempoTrasCantar >= tiempoToReset)
+            {
+                ReiniciarExperiencia();
+            }
+        }
     }
 
     void RecibeMensaje(string _mensaje)
@@ -59,6 +85,9 @@ public class TesisLunaManager : MonoBehaviour
 
     void IniciarInteraccion(string _escultura)
     {
+        //Eventos indepediente a que escultura se acaricie
+        //tiempoTrasCantar = 0;
+
         if (_escultura == "feliz")
         {
             if (clipsInteraccionFelices.Count > 0)
@@ -66,7 +95,7 @@ public class TesisLunaManager : MonoBehaviour
                 audioSource.PlayOneShot(clipsInteraccionFelices[indexClipsInteraccion]);
                 indexClipsInteraccion++;
                 if (indexClipsInteraccion >= clipsInteraccionFelices.Count) indexClipsInteraccion = 0;
-                
+
             }
             else Debug.LogWarning("No hay referenciados clips de audio");
         }
@@ -88,41 +117,109 @@ public class TesisLunaManager : MonoBehaviour
         }
     }
 
+
     void IniciarMimitos(string _escultura)
     {
-        if (_escultura == "feliz")
+        //Eventos indepediente a que escultura se acaricie
+        tiempoTrasCantar = 0;
+        inicioDialogo = true;
+        //------------------------------------------------------------------------
+
+
+        //Cuando NO se acaricia a la escultura interactuable
+        if (esculturaInteractuable != estaEscultura)
         {
-            if (clipsMimitosFelices.Count > 0)
+            //StartCoroutine(CambiarPuedeInteractuar(8, true));
+            return;
+        }
+        //------------------------------------------------------------------------
+
+
+        //Cuando se acaricia la escultura CORRECTA
+        if (esculturaInteractuable == estaEscultura)
+        {
+
+            if (_escultura == "feliz")
             {
+                if (clipsMimitosFelices.Count == 0)
+                {
+                    Debug.LogWarning("No hay referenciados clips de audio");
+                    return;
+                }
+
                 if (!audioSource.isPlaying)
                 {
                     audioSource.clip = clipsMimitosFelices[indexClipsMimitos];
                     audioSource.Play();
                     indexClipsMimitos++;
+                    StartCoroutine(CambiarPuedeInteractuar(8, Esculturas.triste));
                     if (indexClipsMimitos >= clipsMimitosFelices.Count) indexClipsMimitos = 0;
                 }
             }
-            else Debug.LogWarning("No hay referenciados clips de audio");
-        }
-        else if (_escultura == "triste")
-        {
-            if (clipsMimitosFelices.Count > 0)
+
+            else if (_escultura == "triste")
             {
+                if (clipsMimitosFelices.Count == 0)
+                {
+                    Debug.LogWarning("No hay referenciados clips de audio");
+                    return;
+                }
+
                 if (!audioSource.isPlaying)
                 {
                     audioSource.clip = clipsMimitosTristes[indexClipsMimitos];
                     audioSource.Play();
                     indexClipsMimitos++;
+                    StartCoroutine(CambiarPuedeInteractuar(8, Esculturas.feliz));
                     if (indexClipsMimitos >= clipsMimitosTristes.Count) indexClipsMimitos = 0;
                 }
             }
-            else Debug.LogWarning("No hay referenciados clips de audio");
+
+            else
+            {
+                string aviso = "Uno de los ESP32 tiene mal la variable -escultura-. Solo puede ser -feliz- o -triste-";
+                WS_Client.instance.ConsolePrintln(aviso);
+                Debug.LogWarning(aviso);
+                return;
+
+            }
+            return;
         }
-        else
+        //------------------------------------------------------------------------
+
+
+        //Cuando se deben acariciar las dos
+        if (esculturaInteractuable == Esculturas.ambas)
         {
-            string aviso = "Uno de los ESP32 tiene mal la variable -escultura-. Solo puede ser -feliz- o -triste-";
-            Debug.LogWarning(aviso);
-            WS_Client.instance.ConsolePrintln(aviso);
+            //Canto en conjunto 
+            return;
+        }
+        //------------------------------------------------------------------------
+
+    }
+
+
+
+    void ReiniciarExperiencia()
+    {
+        tiempoTrasCantar = 0;
+        indexClipsMimitos = 0;
+        inicioDialogo = false;
+        esculturaInteractuable = Esculturas.feliz;
+    }
+
+    IEnumerator CambiarPuedeInteractuar(float timer, Esculturas nuevaEsculturaInteractuable)
+    {
+        yield return new WaitForSeconds(timer);
+        esculturaInteractuable = nuevaEsculturaInteractuable;
+
+        if (nuevaEsculturaInteractuable == Esculturas.feliz)
+        {
+            WS_Client.instance.ConsolePrintln("Ya puede interactuar con la escultura FELIZ");
+        }
+        else if (nuevaEsculturaInteractuable == Esculturas.triste)
+        {
+            WS_Client.instance.ConsolePrintln("Ya puede interactuar con la escultura TRISTE");
         }
     }
 }
