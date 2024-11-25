@@ -321,7 +321,7 @@ public class TesisLunaManager : MonoBehaviour
             iniciaronAudiosFinales = true;
             EnviarMensajeComoESP32("feliz", "PrepararFinal");
 
-            if (!audioSource.isPlaying && tristeListoParaFinal)
+            if (!audioSource.isPlaying && !tristeListoParaFinal)
             {
                 audioSource.Stop();
                 audioSource.clip = finalDistorsionadoFeliz;
@@ -340,7 +340,7 @@ public class TesisLunaManager : MonoBehaviour
             iniciaronAudiosFinales = true;
             EnviarMensajeComoESP32("triste", "PrepararFinal");
 
-            if (!audioSource.isPlaying && felizListoParaFinal)
+            if (!audioSource.isPlaying && !felizListoParaFinal)
             {
                 audioSource.Stop();
                 audioSource.clip = finalDistorsionadoTriste;
