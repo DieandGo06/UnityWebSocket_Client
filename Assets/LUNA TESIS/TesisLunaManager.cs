@@ -321,7 +321,7 @@ public class TesisLunaManager : MonoBehaviour
             iniciaronAudiosFinales = true;
             EnviarMensajeComoESP32("feliz", "PrepararFinal");
 
-            if (!audioSource.isPlaying)
+            if (!audioSource.isPlaying && tristeListoParaFinal)
             {
                 audioSource.Stop();
                 audioSource.clip = finalDistorsionadoFeliz;
@@ -340,7 +340,7 @@ public class TesisLunaManager : MonoBehaviour
             iniciaronAudiosFinales = true;
             EnviarMensajeComoESP32("triste", "PrepararFinal");
 
-            if (!audioSource.isPlaying)
+            if (!audioSource.isPlaying && felizListoParaFinal)
             {
                 audioSource.Stop();
                 audioSource.clip = finalDistorsionadoTriste;
@@ -389,11 +389,11 @@ public class TesisLunaManager : MonoBehaviour
         //NO DEBERIA SER UN STOP, DEBERIA SER UN CROSS FADE
         audioSource.Stop();
 
-        if (_escultura == "feliz" && estaEscultura == Esculturas.feliz)
+        if (estaEscultura == Esculturas.feliz)
         {
             audioSource.clip = finalCorrectoFeliz;
         }
-        else if (_escultura == "triste" && estaEscultura == Esculturas.triste)
+        else if (estaEscultura == Esculturas.triste)
         {
             audioSource.clip = finalCorrectoTriste;
         }

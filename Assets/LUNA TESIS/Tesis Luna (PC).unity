@@ -1177,7 +1177,7 @@ MonoBehaviour:
   inputIP: {fileID: 70172505}
   MENSAJE: 
   consoleText: {fileID: 1290399081}
-  maxLines: 29
+  maxLines: 20
   SeConecto:
     m_PersistentCalls:
       m_Calls: []
