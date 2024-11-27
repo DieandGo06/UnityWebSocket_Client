@@ -609,10 +609,18 @@ public class TesisLunaManager : MonoBehaviour
     IEnumerator ReiniciarExperienciaTrasFinal()
     {
         yield return new WaitForSeconds(16);
-        ReiniciarExperiencia();
+        //Es lo mismo que Reiniciar experiencia pero sin el cambio de luces
+        iniciaronAudiosFinales = false;
+        felizListoParaFinal = false;
+        tristeListoParaFinal = false;
+        StartCoroutine(EnviarEstadoToUnity(4));
+        //--------------------------------------------
         //ESP32:
-        StartCoroutine(EnviarEstadoDeLuces(1f, Esculturas.feliz, Luces.parpadear));
-        StartCoroutine(EnviarEstadoDeLuces(1f, Esculturas.triste, Luces.parpadear));
+        StartCoroutine(EnviarEstadoDeLuces(0, Esculturas.feliz, Luces.apagar));
+        StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.apagar));
+
+        StartCoroutine(EnviarEstadoDeLuces(5f, Esculturas.feliz, Luces.parpadear));
+        StartCoroutine(EnviarEstadoDeLuces(5f, Esculturas.triste, Luces.parpadear));
     }
 
     IEnumerator CambiarPuedeInteractuar(float timer, Esculturas nuevaEsculturaInteractuable)
