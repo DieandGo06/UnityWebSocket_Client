@@ -58,6 +58,7 @@ public class TesisLunaManager : MonoBehaviour
     private void Start()
     {
         separador = ">>";
+        WS_Client.instance.SeConecto.AddListener(EstadoInicialLuces);
         WS_Client.instance.RecibeMensaje.AddListener(RecibeMensaje);
         WS_Client.instance.ConsolePrintln("Controlando escultura " + estaEscultura.ToString());
     }
@@ -215,8 +216,7 @@ public class TesisLunaManager : MonoBehaviour
                     audioSource.Play();
 
                     //ESP32
-                    StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.encenderTodas));
-                    StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
+                    ComportamientoComunLuces(Esculturas.feliz);
 
                     //Los estados cambian poco antes de terminar el audio
                     StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.triste));
@@ -237,8 +237,7 @@ public class TesisLunaManager : MonoBehaviour
                     cancionParte = 1;
 
                     //ESP32
-                    StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
-                    StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
+                    ComportamientoComunLuces(Esculturas.triste);
 
                     //Los estados cambian poco antes de terminar el audio
                     StartCoroutine(EnviarEstadoToUnity(duracionAudios + 0.2f));
@@ -285,8 +284,7 @@ public class TesisLunaManager : MonoBehaviour
                     Debug.Log("Esta sonando feliz");
 
                     //ESP32
-                    StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.encenderTodas));
-                    StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
+                    ComportamientoComunLuces(Esculturas.feliz);
 
                     //Los estados cambian poco antes de terminar el audio
                     StartCoroutine(EnviarEstadoToUnity(duracionAudios + 0.2f));
@@ -302,14 +300,20 @@ public class TesisLunaManager : MonoBehaviour
                     cancionParte++;
                     Debug.Log("Esta sonando triste");
 
-                    //ESP32
-                    StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
-                    StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
-
-                    if (cancionParte == clipsMimitosTristes.Count)
+                    if (cancionParte < clipsMimitosTristes.Count) //Aun en el desarrollo de la historia
+                    {
+                        ComportamientoComunLuces(Esculturas.triste);
+                    }
+                    else if (cancionParte == clipsMimitosTristes.Count) //Llegando al final
                     {
                         StartCoroutine(CambiarFase(duracionAudios - 1, Fases.final));
                         StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 0.2f, Esculturas.ambas));
+
+                        //ESP32: Cambia al pasar al final
+                        StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
+                        //Tras terminar audio
+                        StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
+                        StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
                     }
                     //Los estados cambian poco antes de terminar el audio
                     StartCoroutine(EnviarEstadoToUnity(duracionAudios + 0.2f));
@@ -418,6 +422,14 @@ public class TesisLunaManager : MonoBehaviour
         {
             audioSource.clip = finalCorrectoTriste;
         }
+
+        //ESP32:
+        StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.encenderTodas));
+        StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
+        //Tras terminar audio
+        StartCoroutine(EnviarEstadoDeLuces((duracionAudios*2), Esculturas.triste, Luces.apagar));
+        StartCoroutine(EnviarEstadoDeLuces((duracionAudios*2), Esculturas.feliz, Luces.apagar));
+
         //AQUI SE DEBE ENVIAR LA SENAL AL OTRO TAMBIEN
         audioSource.Play();
         StartCoroutine(ReiniciarExperienciaTrasFinal());
@@ -486,21 +498,23 @@ public class TesisLunaManager : MonoBehaviour
 
     IEnumerator EnviarEstadoDeLuces(float timer, Esculturas _escultura, Luces _estado)
     {
+        WS_Client.instance.Send("prueba");
+
         yield return new WaitForSeconds(timer);
         if (_estado == Luces.parpadear)
         {
             if (_escultura == Esculturas.feliz)
             {
-                WS_Client.instance.Send("ParpadearFeliz");
+                WS_Client.instance.Send("parpadearFeliz");
             }
             else if (_escultura == Esculturas.triste)
             {
-                WS_Client.instance.Send("ParpadearTriste");
+                WS_Client.instance.Send("parpadearTriste");
             }
             else if (_escultura == Esculturas.ambas)
             {
-                WS_Client.instance.Send("ParpadearFeliz");
-                WS_Client.instance.Send("ParpadearTriste");
+                WS_Client.instance.Send("parpadearFeliz");
+                WS_Client.instance.Send("parpadearTriste");
             }
         }
         else if (_estado == Luces.encenderTodas)
@@ -537,6 +551,32 @@ public class TesisLunaManager : MonoBehaviour
         }
 
     }
+
+    void EstadoInicialLuces()
+    {
+        StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.parpadear));
+        StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.parpadear));
+    }
+
+    void ComportamientoComunLuces(Esculturas esculturaAcariciada)
+    {
+        if (esculturaAcariciada == Esculturas.feliz)
+        {
+            //ESP32
+            StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.encenderTodas));
+            //Tras terminar audio
+            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.apagar));
+            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
+        }
+        else if (esculturaAcariciada == Esculturas.feliz)
+        {
+            //ESP32
+            StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
+            //Tras terminar audio
+            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.apagar));
+            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
+        }
+    }
     #endregion
 
 
@@ -563,6 +603,9 @@ public class TesisLunaManager : MonoBehaviour
     {
         yield return new WaitForSeconds(16);
         ReiniciarExperiencia();
+        //ESP32:
+        StartCoroutine(EnviarEstadoDeLuces(1f, Esculturas.feliz, Luces.parpadear));
+        StartCoroutine(EnviarEstadoDeLuces(1f, Esculturas.triste, Luces.parpadear));
     }
 
     IEnumerator CambiarPuedeInteractuar(float timer, Esculturas nuevaEsculturaInteractuable)
