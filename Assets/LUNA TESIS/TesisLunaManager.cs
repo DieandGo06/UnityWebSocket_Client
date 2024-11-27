@@ -600,6 +600,10 @@ public class TesisLunaManager : MonoBehaviour
         felizListoParaFinal = false;
         tristeListoParaFinal = false;
         StartCoroutine(EnviarEstadoToUnity(0.2f));
+
+        //ESP32:
+        StartCoroutine(EnviarEstadoDeLuces(0.2f, Esculturas.feliz, Luces.parpadear));
+        StartCoroutine(EnviarEstadoDeLuces(0.2f, Esculturas.triste, Luces.parpadear));
     }
 
     IEnumerator ReiniciarExperienciaTrasFinal()
