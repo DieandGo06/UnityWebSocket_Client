@@ -571,7 +571,7 @@ public class TesisLunaManager : MonoBehaviour
             StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.apagar));
             StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
         }
-        else if (esculturaAcariciada == Esculturas.feliz)
+        else if (esculturaAcariciada == Esculturas.triste)
         {
             //ESP32
             StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
