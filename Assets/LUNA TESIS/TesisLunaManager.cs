@@ -577,7 +577,7 @@ public class TesisLunaManager : MonoBehaviour
             StartCoroutine(EnviarEstadoDeLuces(0.1f, Esculturas.feliz, Luces.apagar));
             //Tras terminar audio
             StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.apagar));
-            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
+            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.6f, Esculturas.feliz, Luces.parpadear));
         }
     }
     #endregion
