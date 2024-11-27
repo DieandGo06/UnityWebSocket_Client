@@ -498,8 +498,6 @@ public class TesisLunaManager : MonoBehaviour
 
     IEnumerator EnviarEstadoDeLuces(float timer, Esculturas _escultura, Luces _estado)
     {
-        WS_Client.instance.Send("prueba");
-
         yield return new WaitForSeconds(timer);
         if (_estado == Luces.parpadear)
         {
