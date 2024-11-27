@@ -311,6 +311,7 @@ public class TesisLunaManager : MonoBehaviour
 
                         //ESP32: Cambia al pasar al final
                         StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
+                        StartCoroutine(EnviarEstadoDeLuces(0.1f, Esculturas.feliz, Luces.apagar));
                         //Tras terminar audio
                         StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
                         StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
@@ -564,16 +565,16 @@ public class TesisLunaManager : MonoBehaviour
         {
             //ESP32
             StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.encenderTodas));
-            StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.apagar));
+            StartCoroutine(EnviarEstadoDeLuces(0.1f, Esculturas.triste, Luces.apagar));
             //Tras terminar audio
             StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.apagar));
-            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.parpadear));
+            StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.6f, Esculturas.triste, Luces.parpadear));
         }
         else if (esculturaAcariciada == Esculturas.triste)
         {
             //ESP32
             StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.triste, Luces.encenderTodas));
-            StartCoroutine(EnviarEstadoDeLuces(0f, Esculturas.feliz, Luces.apagar));
+            StartCoroutine(EnviarEstadoDeLuces(0.1f, Esculturas.feliz, Luces.apagar));
             //Tras terminar audio
             StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.triste, Luces.apagar));
             StartCoroutine(EnviarEstadoDeLuces(duracionAudios - 0.5f, Esculturas.feliz, Luces.parpadear));
