@@ -2792,21 +2792,21 @@ MonoBehaviour:
   felizListoParaFinal: 0
   tristeListoParaFinal: 0
   clipsInteraccionFelices:
-  - {fileID: 8300000, guid: ea5fb679d96fa3344ba3bdac08f62356, type: 3}
+  - {fileID: 8300000, guid: 5bca2e9c4ed27e24cb08bd8838dbd590, type: 3}
   clipsMimitosFelices:
-  - {fileID: 8300000, guid: f8b4d41df124a394f9ad3ffe2adc432f, type: 3}
-  - {fileID: 8300000, guid: f4f527bdf09f19844a1296243c7f6220, type: 3}
-  - {fileID: 8300000, guid: 0a5cc9cefb82644448c7b3df6015d987, type: 3}
-  finalDistorsionadoFeliz: {fileID: 8300000, guid: 778d7db7cf7353046a44fdecf95fc74a, type: 3}
-  finalCorrectoFeliz: {fileID: 8300000, guid: a7a748818b7638c4c9b4e40a2ae77365, type: 3}
-  clipsInteraccionTristes:
   - {fileID: 8300000, guid: ea5fb679d96fa3344ba3bdac08f62356, type: 3}
+  - {fileID: 8300000, guid: e47c168b78e0f424a8d35ea96683f8fc, type: 3}
+  - {fileID: 8300000, guid: fa220274acca9ea4d92c3ee6278215fc, type: 3}
+  finalDistorsionadoFeliz: {fileID: 8300000, guid: 915cddea0ac57d044b524203d51f10b1, type: 3}
+  finalCorrectoFeliz: {fileID: 8300000, guid: 721cd8a9757c21946852ea5498c37346, type: 3}
+  clipsInteraccionTristes:
+  - {fileID: 8300000, guid: 5bca2e9c4ed27e24cb08bd8838dbd590, type: 3}
   clipsMimitosTristes:
-  - {fileID: 8300000, guid: ec13501b5e6e9274aa72a984050bfdbe, type: 3}
-  - {fileID: 8300000, guid: 00d23b3a1255a3b48855e25cf59fd7be, type: 3}
-  - {fileID: 8300000, guid: 4ad1998455e2d9940ac90eb0eed4e29a, type: 3}
-  finalDistorsionadoTriste: {fileID: 8300000, guid: 778d7db7cf7353046a44fdecf95fc74a, type: 3}
-  finalCorrectoTriste: {fileID: 8300000, guid: a7a748818b7638c4c9b4e40a2ae77365, type: 3}
+  - {fileID: 8300000, guid: b96ebeaaf58fe7c469ad80598548a8f9, type: 3}
+  - {fileID: 8300000, guid: 86b7b1daead8c0c4fa9797a54596b36f, type: 3}
+  - {fileID: 8300000, guid: 3a90fe55f8873424fae8cb276282ce10, type: 3}
+  finalDistorsionadoTriste: {fileID: 8300000, guid: 9b9a65cce99f74a4685c49dea2954bb5, type: 3}
+  finalCorrectoTriste: {fileID: 8300000, guid: 49ef0d8586f29a747a9c9e967846a42a, type: 3}
   indexClipsInteraccion: 0
   cancionParte: 0
   tiempoTrasCantar: 0
@@ -2821,7 +2821,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

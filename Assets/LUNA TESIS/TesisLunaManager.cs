@@ -144,7 +144,7 @@ public class TesisLunaManager : MonoBehaviour
         {
             if (clipsInteraccionFelices.Count > 0)
             {
-                audioSource.PlayOneShot(clipsInteraccionFelices[indexClipsInteraccion]);
+                //audioSource.PlayOneShot(clipsInteraccionFelices[indexClipsInteraccion]);
                 indexClipsInteraccion++;
                 if (indexClipsInteraccion >= clipsInteraccionFelices.Count) indexClipsInteraccion = 0;
 
@@ -155,7 +155,7 @@ public class TesisLunaManager : MonoBehaviour
         {
             if (clipsInteraccionTristes.Count > 0)
             {
-                audioSource.PlayOneShot(clipsInteraccionTristes[indexClipsInteraccion]);
+                //audioSource.PlayOneShot(clipsInteraccionTristes[indexClipsInteraccion]);
                 indexClipsInteraccion++;
                 if (indexClipsInteraccion >= clipsInteraccionTristes.Count) indexClipsInteraccion = 0;
             }
@@ -212,6 +212,7 @@ public class TesisLunaManager : MonoBehaviour
             {
                 if (!audioSource.isPlaying)
                 {
+                    Debug.Log("musica");
                     audioSource.clip = clipsMimitosFelices[0];
                     audioSource.Play();
 
@@ -230,6 +231,7 @@ public class TesisLunaManager : MonoBehaviour
             {
                 if (!audioSource.isPlaying)
                 {
+                    Debug.Log("musica");
                     StartCoroutine(CambiarPuedeInteractuar(duracionAudios - 1, Esculturas.feliz));
                     StartCoroutine(CambiarFase(duracionAudios - 1, Fases.desarrollo));
                     audioSource.clip = clipsMimitosTristes[0];
